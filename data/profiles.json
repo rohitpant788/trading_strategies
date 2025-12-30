@@ -1,15 +1,10 @@
 {
-  "activeProfileId": "rohit_2_0509",
+  "activeProfileId": "main",
   "profiles": [
     {
       "id": "main",
       "name": "Main Portfolio",
       "filename": "etf_shop.db"
-    },
-    {
-      "id": "rohit_2_0509",
-      "name": "rohit 2",
-      "filename": "etf_shop_rohit_2_0509.db"
     }
   ]
 }
