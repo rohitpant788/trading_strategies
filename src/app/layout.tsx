@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import TabNav from "@/components/TabNav";
+import ProfileSwitcher from "@/components/ProfileSwitcher";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +36,9 @@ export default function RootLayout({
               <div className="text-right">
                 <p className="text-xs text-gray-500">Last Updated</p>
                 <p className="text-sm text-gray-300" id="lastUpdated">--</p>
+              </div>
+              <div className="ml-4">
+                <ProfileSwitcher />
               </div>
             </div>
           </div>

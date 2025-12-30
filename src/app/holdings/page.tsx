@@ -306,12 +306,12 @@ export default function HoldingsPage() {
         setEditModalOpen(true);
     };
 
-    const confirmEdit = async (id: number, newPrice: number, newQty: number) => {
+    const confirmEdit = async (id: number, newPrice: number, newQty: number, newDate: string) => {
         try {
             const response = await fetch('/api/holdings', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, buyPrice: newPrice, quantity: newQty }),
+                body: JSON.stringify({ id, buyPrice: newPrice, quantity: newQty, buyDate: newDate }),
             });
 
             if (response.ok) {

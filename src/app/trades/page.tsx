@@ -86,6 +86,78 @@ export default function TradesPage() {
         ? filteredTrades.reduce((sum, t) => sum + t.holdingDays, 0) / totalTrades
         : 0;
 
+    // Monthly Summary Calculation
+    const monthlySummary = filteredTrades.reduce((acc, trade) => {
+        const date = new Date(trade.sellDate);
+        const key = `${date.getFullYear()}-${date.toLocaleString('default', { month: 'short' })}`; // "2024-Oct"
+
+        if (!acc[key]) {
+            acc[key] = {
+                month: key,
+                profit: 0,
+                invested: 0,
+                brokerage: 0,
+                tax: 0,
+                incentive: 0,
+                growth: 0,
+                sortKey: date.getTime() // For sorting
+            };
+        }
+
+        const invested = trade.buyPrice * trade.quantity;
+        acc[key].profit += trade.profit;
+        acc[key].invested += invested;
+        acc[key].growth += trade.profit; // Currently just profit as expenses are 0
+
+        return acc;
+    }, {} as Record<string, any>);
+
+    const summaryRows = Object.values(monthlySummary).sort((a, b) => a.sortKey - b.sortKey);
+
+    // Grand Totals for Summary
+    const grandTotal = summaryRows.reduce((acc, row) => ({
+        profit: acc.profit + row.profit,
+        invested: acc.invested + row.invested,
+        brokerage: 0,
+        tax: 0,
+        incentive: 0,
+        growth: acc.growth + row.growth
+    }), { profit: 0, invested: 0, brokerage: 0, tax: 0, incentive: 0, growth: 0 });
+
+    const summaryColumns = [
+        { key: 'month', header: 'Sell Date (Year-Month)' },
+        {
+            key: 'profit',
+            header: 'SUM of Profit Amount',
+            render: (row: any) => <span className={row.profit >= 0 ? 'text-emerald-400 font-medium' : 'text-red-400'}>{formatCurrency(row.profit)}</span>
+        },
+        {
+            key: 'invested',
+            header: 'MAX of Invested amt', // Label as requested
+            render: (row: any) => <span className="text-gray-300">{formatCurrency(row.invested)}</span>
+        },
+        {
+            key: 'brokerage',
+            header: 'Brokerage + Charges',
+            render: () => <span className="text-gray-500">0</span>
+        },
+        {
+            key: 'tax',
+            header: 'Income Tax',
+            render: () => <span className="text-gray-500">0</span>
+        },
+        {
+            key: 'incentive',
+            header: 'Incentive to Self',
+            render: () => <span className="text-gray-500">0</span>
+        },
+        {
+            key: 'growth',
+            header: 'Net Growth',
+            render: (row: any) => <span className={row.growth >= 0 ? 'text-emerald-400 font-bold' : 'text-red-400'}>{formatCurrency(row.growth)}</span>
+        },
+    ];
+
     const columns = [
         {
             key: 'etfSymbol',
@@ -233,23 +305,79 @@ export default function TradesPage() {
                 />
             </div>
 
+            {/* Monthly Performance Summary */}
+            {
+                summaryRows.length > 0 && (
+                    <div className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden mb-6">
+                        <div className="p-4 border-b border-gray-700">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                🗓️ Monthly Performance Report
+                            </h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm text-gray-400">
+                                <thead className="bg-gray-900/50 text-gray-200 uppercase font-medium">
+                                    <tr>
+                                        <th className="px-4 py-3">Sell Date (Year-Month)</th>
+                                        <th className="px-4 py-3">Profit Amount</th>
+                                        <th className="px-4 py-3">Invested Amt (Cost)</th>
+                                        <th className="px-4 py-3">Charges</th>
+                                        <th className="px-4 py-3">Tax</th>
+                                        <th className="px-4 py-3">Incentive</th>
+                                        <th className="px-4 py-3">Net Growth</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-700">
+                                    {summaryRows.map((row) => (
+                                        <tr key={row.month} className="hover:bg-gray-700/30 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-white">{row.month}</td>
+                                            <td className={`px-4 py-3 ${row.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                {formatCurrency(row.profit)}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-300">{formatCurrency(row.invested)}</td>
+                                            <td className="px-4 py-3 text-gray-500">0</td>
+                                            <td className="px-4 py-3 text-gray-500">0</td>
+                                            <td className="px-4 py-3 text-gray-500">0</td>
+                                            <td className={`px-4 py-3 font-bold ${row.growth >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                {formatCurrency(row.growth)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    <tr className="bg-emerald-900/20 font-bold border-t-2 border-emerald-500/30">
+                                        <td className="px-4 py-3 text-emerald-300">Grand Total</td>
+                                        <td className="px-4 py-3 text-emerald-400">{formatCurrency(grandTotal.profit)}</td>
+                                        <td className="px-4 py-3 text-emerald-300">{formatCurrency(grandTotal.invested)}</td>
+                                        <td className="px-4 py-3 text-gray-400">0</td>
+                                        <td className="px-4 py-3 text-gray-400">0</td>
+                                        <td className="px-4 py-3 text-gray-400">0</td>
+                                        <td className="px-4 py-3 text-emerald-400 text-lg">{formatCurrency(grandTotal.growth)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )
+            }
+
             {/* Profit Summary Bar */}
-            {totalTrades > 0 && (
-                <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-gray-400 text-sm">Win/Loss Distribution</span>
-                        <span className="text-gray-300 text-sm">
-                            {winningTrades} wins / {totalTrades - winningTrades} losses
-                        </span>
+            {
+                totalTrades > 0 && (
+                    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400 text-sm">Win/Loss Distribution</span>
+                            <span className="text-gray-300 text-sm">
+                                {winningTrades} wins / {totalTrades - winningTrades} losses
+                            </span>
+                        </div>
+                        <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                                style={{ width: `${winRate}%` }}
+                            />
+                        </div>
                     </div>
-                    <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                            style={{ width: `${winRate}%` }}
-                        />
-                    </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Table */}
             <div className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden">
@@ -277,6 +405,6 @@ export default function TradesPage() {
                 cancelText="Cancel"
                 isDanger={true}
             />
-        </div>
+        </div >
     );
 }

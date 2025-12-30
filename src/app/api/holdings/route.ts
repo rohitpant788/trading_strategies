@@ -51,9 +51,9 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
-        const { id, buyPrice, quantity } = body;
+        const { id, buyPrice, quantity, buyDate } = body;
 
-        updateHolding(id, buyPrice, quantity);
+        updateHolding(id, buyPrice, quantity, buyDate);
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error updating holding:', error);

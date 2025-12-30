@@ -211,6 +211,16 @@ export default function ETFsListPage() {
             ),
         },
         {
+            key: 'category',
+            header: 'Category',
+            sortable: true,
+            render: (row: ETFWithMarketData) => (
+                <span className="text-gray-400 text-xs px-2 py-1 bg-gray-700 rounded-full">
+                    {row.category}
+                </span>
+            ),
+        },
+        {
             key: 'cmp',
             header: 'CMP',
             sortable: true,

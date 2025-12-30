@@ -4,18 +4,21 @@ import { HoldingWithCalc } from '@/types'; // Or just Holding if Calc not needed
 interface EditHoldingModalProps {
     isOpen: boolean;
     holding: any | null; // using any to match flexible types or HoldingWithCalc
-    onConfirm: (id: number, newPrice: number, newQty: number) => void;
+    onConfirm: (id: number, newPrice: number, newQty: number, newDate: string) => void;
     onCancel: () => void;
 }
 
 export default function EditHoldingModal({ isOpen, holding, onConfirm, onCancel }: EditHoldingModalProps) {
     const [price, setPrice] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [buyDate, setBuyDate] = useState('');
 
     useEffect(() => {
         if (holding) {
             setPrice(holding.buyPrice.toString());
             setQuantity(holding.quantity.toString());
+            // Ensure format is YYYY-MM-DD
+            setBuyDate(holding.buyDate.split('T')[0]);
         }
     }, [holding]);
 
@@ -23,7 +26,7 @@ export default function EditHoldingModal({ isOpen, holding, onConfirm, onCancel 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onConfirm(holding.id, parseFloat(price), parseInt(quantity));
+        onConfirm(holding.id, parseFloat(price), parseInt(quantity), buyDate);
     };
 
     return (
@@ -38,6 +41,16 @@ export default function EditHoldingModal({ isOpen, holding, onConfirm, onCancel 
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm text-gray-400 mb-1">Buy Date</label>
+                        <input
+                            type="date"
+                            required
+                            value={buyDate}
+                            onChange={(e) => setBuyDate(e.target.value)}
+                            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm text-gray-400 mb-1">Buy Price</label>
                         <input

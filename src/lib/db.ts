@@ -6,15 +6,138 @@ import path from 'path';
 import { ETF, Holding, Trade, CapitalTransaction, Settings, MarketDataRow } from '@/types';
 import etfList from '@/data/etf_list.json';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'etf_shop.db');
+import fs from 'fs';
+
+const DATA_DIR = path.join(process.cwd(), 'data');
+const PROFILES_PATH = path.join(DATA_DIR, 'profiles.json');
+const DEFAULT_DB_PATH = path.join(DATA_DIR, 'etf_shop.db');
+
+interface Profile {
+  id: string;
+  name: string;
+  filename: string;
+}
+
+interface ProfilesConfig {
+  activeProfileId: string;
+  profiles: Profile[];
+}
+
+// Initialize profiles config if not exists
+if (!fs.existsSync(PROFILES_PATH)) {
+  const defaultConfig: ProfilesConfig = {
+    activeProfileId: 'main',
+    profiles: [
+      { id: 'main', name: 'Main Portfolio', filename: 'etf_shop.db' }
+    ]
+  };
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(PROFILES_PATH, JSON.stringify(defaultConfig, null, 2));
+}
 
 let db: Database.Database | null = null;
+let currentDbPath: string | null = null;
+
+export function getProfilesConfig(): ProfilesConfig {
+  try {
+    if (fs.existsSync(PROFILES_PATH)) {
+      const data = fs.readFileSync(PROFILES_PATH, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.error("Error reading profiles", e);
+  }
+  return { activeProfileId: 'main', profiles: [{ id: 'main', name: 'Main Portfolio', filename: 'etf_shop.db' }] };
+}
+
+export function saveProfilesConfig(config: ProfilesConfig) {
+  fs.writeFileSync(PROFILES_PATH, JSON.stringify(config, null, 2));
+}
+
+export function getActiveProfile(): Profile {
+  const config = getProfilesConfig();
+  return config.profiles.find(p => p.id === config.activeProfileId) || config.profiles[0];
+}
+
+export function createProfile(name: string): Profile {
+  const config = getProfilesConfig();
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now().toString().slice(-4);
+  const filename = `etf_shop_${id}.db`;
+
+  const newProfile: Profile = { id, name, filename };
+  config.profiles.push(newProfile);
+  saveProfilesConfig(config);
+  return newProfile;
+}
+
+export function switchProfile(id: string): boolean {
+  const config = getProfilesConfig();
+  const profile = config.profiles.find(p => p.id === id);
+  if (!profile) return false;
+
+  config.activeProfileId = id;
+  saveProfilesConfig(config);
+
+  // Force DB reload
+  if (db) {
+    db.close();
+    db = null;
+    currentDbPath = null;
+  }
+  return true;
+}
+
+export function deleteProfile(id: string): boolean {
+  const config = getProfilesConfig();
+  const profileIndex = config.profiles.findIndex(p => p.id === id);
+
+  // Cannot delete main profile or if it's the only one
+  if (id === 'main' || config.profiles.length <= 1 || profileIndex === -1) {
+    return false;
+  }
+
+  const profile = config.profiles[profileIndex];
+
+  // If deleting active profile, switch to main first
+  if (config.activeProfileId === id) {
+    config.activeProfileId = 'main';
+    if (db) {
+      db.close();
+      db = null;
+      currentDbPath = null;
+    }
+  }
+
+  // Remove from config
+  config.profiles.splice(profileIndex, 1);
+  saveProfilesConfig(config);
+
+  // Delete DB file
+  try {
+    const dbPath = path.join(DATA_DIR, profile.filename);
+    if (fs.existsSync(dbPath)) {
+      // Ensure DB is closed if it was open (though we handled active above)
+      fs.unlinkSync(dbPath);
+    }
+  } catch (e) {
+    console.error(`Failed to delete DB file for profile ${id}`, e);
+  }
+
+  return true;
+}
 
 export function getDb(): Database.Database {
-  if (!db) {
-    db = new Database(DB_PATH);
+  const activeProfile = getActiveProfile();
+  const dbPath = path.join(DATA_DIR, activeProfile.filename);
+
+  if (!db || currentDbPath !== dbPath) {
+    if (db) db.close(); // Close existing if path changed
+
+    console.log(`🔌 Connecting to DB: ${activeProfile.name} (${activeProfile.filename})`);
+    db = new Database(dbPath);
     db.pragma('journal_mode = WAL');
     initializeDatabase();
+    currentDbPath = dbPath;
   }
   return db;
 }
@@ -238,11 +361,17 @@ export function addHolding(etfId: number, buyDate: string, buyPrice: number, qua
   return result.lastInsertRowid as number;
 }
 
-export function updateHolding(id: number, buyPrice: number, quantity: number): void {
+export function updateHolding(id: number, buyPrice: number, quantity: number, buyDate?: string): void {
   const db = getDb();
-  db.prepare(`
-    UPDATE holdings SET buy_price = ?, quantity = ? WHERE id = ?
-  `).run(buyPrice, quantity, id);
+  if (buyDate) {
+    db.prepare(`
+        UPDATE holdings SET buy_price = ?, quantity = ?, buy_date = ? WHERE id = ?
+      `).run(buyPrice, quantity, buyDate, id);
+  } else {
+    db.prepare(`
+        UPDATE holdings SET buy_price = ?, quantity = ? WHERE id = ?
+      `).run(buyPrice, quantity, id);
+  }
 }
 
 export function deleteHolding(id: number): void {
