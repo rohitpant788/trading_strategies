@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --foreground: #ededed;
+  --background: #0a0a0a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Hide scrollbar for tab navigation */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Yellow input field styling (matching Google Sheet yellow cells) */
+.input-yellow {
+  @apply bg-yellow-100 text-gray-900 border-yellow-300 focus:ring-yellow-400 focus:border-yellow-400;
+}
+
+/* Green profit color */
+.text-profit {
+  color: #10b981;
+}
+
+/* Red loss color */
+.text-loss {
+  color: #ef4444;
+}
+
+/* Gradient background for cards */
+.card-gradient {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 78, 59, 0.2) 100%);
+}
+
+/* Pulse animation for buy/sell signals */
+@keyframes pulse-signal {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-signal {
+  animation: pulse-signal 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

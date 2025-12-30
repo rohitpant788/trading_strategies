@@ -1,0 +1,267 @@
+[
+  {
+    "symbol": "CPSEETF",
+    "name": "CPSE ETF",
+    "category": "PSU"
+  },
+  {
+    "symbol": "GOLDBEES",
+    "name": "Gold",
+    "category": "Gold"
+  },
+  {
+    "symbol": "NIF100BEES",
+    "name": "NIFTY 100",
+    "category": "Large Cap"
+  },
+  {
+    "symbol": "LOWVOLIETF",
+    "name": "NIFTY 100 Low Volatility 30",
+    "category": "Low Volatility"
+  },
+  {
+    "symbol": "ALPHAETF",
+    "name": "NIFTY 200 Alpha 30",
+    "category": "Alpha"
+  },
+  {
+    "symbol": "MOM30IETF",
+    "name": "NIFTY 200 Momentum 30",
+    "category": "Momentum"
+  },
+  {
+    "symbol": "QUAL30IETF",
+    "name": "NIFTY 200 Quality 30",
+    "category": "Quality"
+  },
+  {
+    "symbol": "NIFTYBEES",
+    "name": "NIFTY 50",
+    "category": "Large Cap"
+  },
+  {
+    "symbol": "EQUAL50ADD",
+    "name": "NIFTY 50 Equal Weight",
+    "category": "Large Cap"
+  },
+  {
+    "symbol": "NV20IETF",
+    "name": "NIFTY 50 Value 20",
+    "category": "Value"
+  },
+  {
+    "symbol": "MONIFTY500",
+    "name": "NIFTY 500",
+    "category": "Multi Cap"
+  },
+  {
+    "symbol": "MOMENTUM50",
+    "name": "NIFTY 500 Momentum 50",
+    "category": "Momentum"
+  },
+  {
+    "symbol": "MULTICAP",
+    "name": "NIFTY 500 Multicap 50:25:25",
+    "category": "Multi Cap"
+  },
+  {
+    "symbol": "EMULTIMQ",
+    "name": "NIFTY 500 Multicap Momentum Quality 50",
+    "category": "Multi Cap"
+  },
+  {
+    "symbol": "ALPHA",
+    "name": "NIFTY Alpha 50",
+    "category": "Alpha"
+  },
+  {
+    "symbol": "ALPL30IETF",
+    "name": "NIFTY Alpha Low-Volatility 30",
+    "category": "Low Volatility"
+  },
+  {
+    "symbol": "AUTOBEES",
+    "name": "NIFTY Auto",
+    "category": "Auto"
+  },
+  {
+    "symbol": "BANKBEES",
+    "name": "NIFTY Bank",
+    "category": "Banking"
+  },
+  {
+    "symbol": "COMMOIETF",
+    "name": "NIFTY Commodities",
+    "category": "Commodity"
+  },
+  {
+    "symbol": "DIVOPPBEES",
+    "name": "NIFTY Dividend Opportunities 50 TRI",
+    "category": "Dividend"
+  },
+  {
+    "symbol": "EVINDIA",
+    "name": "NIFTY EV and New Age Automotive",
+    "category": "Thematic"
+  },
+  {
+    "symbol": "BFSI",
+    "name": "NIFTY Financial Services",
+    "category": "BFSI"
+  },
+  {
+    "symbol": "FINIETF",
+    "name": "NIFTY Financial Services Ex-Bank",
+    "category": "BFSI"
+  },
+  {
+    "symbol": "FMCGIETF",
+    "name": "NIFTY FMCG",
+    "category": "FMCG"
+  },
+  {
+    "symbol": "HEALTHIETF",
+    "name": "NIFTY Healthcare",
+    "category": "Healthcare"
+  },
+  {
+    "symbol": "CONSUMBEES",
+    "name": "NIFTY India Consumption",
+    "category": "Consumption"
+  },
+  {
+    "symbol": "MODEFENCE",
+    "name": "NIFTY India Defence",
+    "category": "Thematic"
+  },
+  {
+    "symbol": "TNIDETF",
+    "name": "NIFTY India Digital",
+    "category": "Thematic"
+  },
+  {
+    "symbol": "MAKEINDIA",
+    "name": "NIFTY India Manufacturing Total Return",
+    "category": "Thematic"
+  },
+  {
+    "symbol": "CONSUMER",
+    "name": "NIFTY India New Age Consumption",
+    "category": "Consumption"
+  },
+  {
+    "symbol": "INFRABEES",
+    "name": "NIFTY Infrastructure",
+    "category": "Infrastructure"
+  },
+  {
+    "symbol": "ITBEES",
+    "name": "NIFTY IT",
+    "category": "IT"
+  },
+  {
+    "symbol": "METALIETF",
+    "name": "NIFTY Metal ETF",
+    "category": "Metal"
+  },
+  {
+    "symbol": "MOM100",
+    "name": "NIFTY Midcap 100",
+    "category": "Mid Cap"
+  },
+  {
+    "symbol": "MID150BEES",
+    "name": "NIFTY Midcap 150",
+    "category": "Mid Cap"
+  },
+  {
+    "symbol": "MIDCAP",
+    "name": "NIFTY Midcap 50",
+    "category": "Mid Cap"
+  },
+  {
+    "symbol": "MIDSMALL",
+    "name": "NIFTY MidSmallcap 400 Momentum Quality 100",
+    "category": "Mid Cap"
+  },
+  {
+    "symbol": "JUNIORBEES",
+    "name": "NIFTY NEXT 50",
+    "category": "Large Cap"
+  },
+  {
+    "symbol": "OILIETF",
+    "name": "NIFTY Oil & Gas",
+    "category": "Commodity"
+  },
+  {
+    "symbol": "PHARMABEES",
+    "name": "NIFTY Pharma",
+    "category": "Pharma"
+  },
+  {
+    "symbol": "PVTBANIETF",
+    "name": "NIFTY Private Bank",
+    "category": "Banking"
+  },
+  {
+    "symbol": "PSUBNKBEES",
+    "name": "NIFTY PSU Bank",
+    "category": "Banking"
+  },
+  {
+    "symbol": "MOREALTY",
+    "name": "NIFTY Realty",
+    "category": "Realty"
+  },
+  {
+    "symbol": "HDFCSML250",
+    "name": "NIFTY Smallcap 250",
+    "category": "Small Cap"
+  },
+  {
+    "symbol": "SMALLCAP",
+    "name": "NIFTY Smallcap 250 Momentum Quality 100",
+    "category": "Small Cap"
+  },
+  {
+    "symbol": "BSE500IETF",
+    "name": "S&P BSE 500",
+    "category": "Multi Cap"
+  },
+  {
+    "symbol": "ICICIB22",
+    "name": "S&P BSE BHARAT 22",
+    "category": "PSU"
+  },
+  {
+    "symbol": "MOVALUE",
+    "name": "S&P BSE Enhanced Value",
+    "category": "Value"
+  },
+  {
+    "symbol": "MOHEALTH",
+    "name": "S&P BSE Healthcare",
+    "category": "Healthcare"
+  },
+  {
+    "symbol": "MIDSELIETF",
+    "name": "S&P BSE Midcap Select",
+    "category": "Mid Cap"
+  },
+  {
+    "symbol": "SENSEXIETF",
+    "name": "Sensex",
+    "category": "Large Cap"
+  },
+  {
+    "symbol": "SHARIABEES",
+    "name": "Shariah",
+    "category": "Shariah"
+  },
+  {
+    "symbol": "SILVERBEES",
+    "name": "Silver",
+    "category": "Silver"
+  }
+]
