@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import DataTable from '@/components/DataTable';
 import StatCard from '@/components/StatCard';
+import ConfirmationModal from '@/components/ConfirmationModal';
 import { Trade } from '@/types';
 import { formatCurrency, formatPercent, formatDate } from '@/lib/calculations';
 
@@ -10,6 +11,11 @@ export default function TradesPage() {
     const [trades, setTrades] = useState<Trade[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [dateFilter, setDateFilter] = useState<'all' | '30d' | '90d' | '1y'>('all');
+
+    // Confirm Modal State
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmStep, setConfirmStep] = useState<1 | 2>(1);
+    const [tradeToDelete, setTradeToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         fetchTrades();
@@ -39,6 +45,36 @@ export default function TradesPage() {
     };
 
     const filteredTrades = filterTrades();
+
+    const handleDeleteClick = (id: number) => {
+        setTradeToDelete(id);
+        setConfirmStep(1);
+        setConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!tradeToDelete) return;
+
+        if (confirmStep === 1) {
+            setConfirmStep(2);
+            return;
+        }
+
+        try {
+            await fetch(`/api/trades?id=${tradeToDelete}`, { method: 'DELETE' });
+            fetchTrades();
+            setConfirmOpen(false);
+            setTradeToDelete(null);
+        } catch (error) {
+            console.error('Error deleting trade:', error);
+        }
+    };
+
+    const cancelDelete = () => {
+        setConfirmOpen(false);
+        setTradeToDelete(null);
+        setConfirmStep(1);
+    };
 
     // Summary calculations
     const totalProfit = filteredTrades.reduce((sum, t) => sum + t.profit, 0);
@@ -127,6 +163,18 @@ export default function TradesPage() {
                 <span className="text-gray-400">{row.holdingDays}</span>
             ),
         },
+        {
+            key: 'actions',
+            header: 'Actions',
+            render: (row: Trade) => (
+                <button
+                    onClick={() => handleDeleteClick(row.id)}
+                    className="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs font-medium transition-colors"
+                >
+                    ✕
+                </button>
+            ),
+        },
     ];
 
     return (
@@ -145,8 +193,8 @@ export default function TradesPage() {
                             key={filter}
                             onClick={() => setDateFilter(filter)}
                             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${dateFilter === filter
-                                    ? 'bg-emerald-600 text-white'
-                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                                 }`}
                         >
                             {filter === 'all' ? 'All Time' : filter.toUpperCase()}
@@ -213,6 +261,22 @@ export default function TradesPage() {
                     emptyMessage="No completed trades yet. Sell holdings to see them here."
                 />
             </div>
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={confirmOpen}
+                title={confirmStep === 1 ? "Confirm Trade Deletion" : "⚠️ Final Warning"}
+                message={
+                    confirmStep === 1
+                        ? "Are you sure you want to DELETE this trade record?"
+                        : "Double Check: This action CANNOT be undone. Do you really want to delete this historical trade?"
+                }
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                confirmText={confirmStep === 1 ? "Yes, Delete" : "I Understand, DELETE IT"}
+                cancelText="Cancel"
+                isDanger={true}
+            />
         </div>
     );
 }

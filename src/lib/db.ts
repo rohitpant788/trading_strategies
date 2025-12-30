@@ -3,7 +3,7 @@
 
 import Database from 'better-sqlite3';
 import path from 'path';
-import { ETF, Holding, Trade, CapitalTransaction, Settings } from '@/types';
+import { ETF, Holding, Trade, CapitalTransaction, Settings, MarketDataRow } from '@/types';
 import etfList from '@/data/etf_list.json';
 
 const DB_PATH = path.join(process.cwd(), 'data', 'etf_shop.db');
@@ -146,6 +146,11 @@ function initializeDatabase(): void {
       insertSetting.run(key, value);
     }
   }
+}
+
+export function deleteTrade(id: number): void {
+  const db = getDb();
+  db.prepare('DELETE FROM trades WHERE id = ?').run(id);
 }
 
 // ============ ETF Operations ============
@@ -380,26 +385,7 @@ export function deleteSIPEntry(id: number): void {
 
 // ============ Market Data Operations ============
 
-export interface MarketDataRow {
-  id: number;
-  etfId: number;
-  symbol: string;
-  yahooSymbol: string;
-  name: string;
-  category: string;
-  cmp: number | null;
-  high52w: number | null;
-  low52w: number | null;
-  prevClose: number | null;
-  change: number | null;
-  changePercent: number | null;
-  volume: number | null;
-  dma20: number | null;
-  dmaDistance: number | null;
-  updatedAt: string | null;
-  distanceFromLow: number | null;
-  distanceFromHigh: number | null;
-}
+// MarketDataRow imported from @/types
 
 export function getAllETFsWithMarketData(): MarketDataRow[] {
   const db = getDb();

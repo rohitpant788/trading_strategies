@@ -19,7 +19,7 @@ interface DataTableProps<T> {
     isLoading?: boolean;
 }
 
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T>({
     columns,
     data,
     keyField,
@@ -45,8 +45,8 @@ export default function DataTable<T extends Record<string, unknown>>({
     const sortedData = [...data].sort((a, b) => {
         if (!sortColumn) return 0;
 
-        const aVal = a[sortColumn];
-        const bVal = b[sortColumn];
+        const aVal = (a as any)[sortColumn];
+        const bVal = (b as any)[sortColumn];
 
         if (typeof aVal === 'number' && typeof bVal === 'number') {
             return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;

@@ -5,6 +5,8 @@ import DataTable from '@/components/DataTable';
 import StatCard from '@/components/StatCard';
 import { formatCurrency, formatPercent } from '@/lib/calculations';
 
+import { Holding, Settings } from '@/types';
+
 interface ETFWithMarketData {
     etfId: number;
     symbol: string;
@@ -27,6 +29,8 @@ interface ETFWithMarketData {
 
 export default function ETFsListPage() {
     const [etfs, setETFs] = useState<ETFWithMarketData[]>([]);
+    const [holdings, setHoldings] = useState<Holding[]>([]);
+    const [settings, setSettings] = useState<Settings | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [filter, setFilter] = useState<string>('');
@@ -46,13 +50,22 @@ export default function ETFsListPage() {
     const fetchETFs = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch('/api/etfs');
-            const data = await response.json();
+            const [etfsRes, holdingsRes, settingsRes] = await Promise.all([
+                fetch('/api/etfs'),
+                fetch('/api/holdings'),
+                fetch('/api/settings')
+            ]);
 
-            setETFs(data.etfs || []);
-            setLastUpdated(data.lastUpdated);
+            const etfsData = await etfsRes.json();
+            const holdingsData = await holdingsRes.json();
+            const settingsData = await settingsRes.json();
+
+            setETFs(etfsData.etfs || []);
+            setLastUpdated(etfsData.lastUpdated);
+            setHoldings(holdingsData);
+            setSettings(settingsData);
         } catch (error) {
-            console.error('Error fetching ETFs:', error);
+            console.error('Error fetching data:', error);
         } finally {
             setIsLoading(false);
         }
@@ -114,12 +127,49 @@ export default function ETFsListPage() {
     const categories = ['All', ...new Set(etfs.map(e => e.category))];
     const uniqueCategories = [...new Set(etfs.map(e => e.category))];
 
+
+    // Group holdings by ETF Symbol to find the latest buy price
+    const holdingsMap = new Map<string, Holding[]>();
+    holdings.forEach(h => {
+        const list = holdingsMap.get(h.etfSymbol) || [];
+        list.push(h);
+        holdingsMap.set(h.etfSymbol, list);
+    });
+
     const filteredETFs = etfs.filter(etf => {
+        // 1. Basic Filters
         const matchesSearch =
             etf.symbol.toLowerCase().includes(filter.toLowerCase()) ||
             etf.name.toLowerCase().includes(filter.toLowerCase());
         const matchesCategory = categoryFilter === 'All' || etf.category === categoryFilter;
-        return matchesSearch && matchesCategory;
+
+        if (!matchesSearch || !matchesCategory) return false;
+
+        // 2. Averaging Threshold Filter
+        // If we hold this ETF, hide it UNLESS price has dropped enough from LAST BUY
+        const etfHoldings = holdingsMap.get(etf.symbol);
+        if (etfHoldings && etfHoldings.length > 0 && settings?.averagingThreshold && etf.cmp) {
+            // Find latest buy (Holdings are typically sorted by date in API, but let's be safe)
+            // Actually API returns ordered by buy_date DESC (newest first) or we sort here.
+            // Let's assume simplest: find max date or id.
+            // API getAllHoldings sorts by buy_date DESC. So first item is latest.
+            // Wait, getAllHoldings in db.ts sorts by buy_date DESC. Correct.
+
+            const latestHolding = etfHoldings[0]; // Most recent buy
+            const lastBuyPrice = latestHolding.buyPrice;
+
+            // Calculate drop percentage: (LastBuy - Current) / LastBuy * 100
+            // Positive if dropped, Negative if rose.
+            const dropPercent = ((lastBuyPrice - etf.cmp) / lastBuyPrice) * 100;
+
+            // IF drop is LESS than threshold (e.g. 1% < 2.5%), HIDE IT.
+            // If drop is MORE or EQUAL (e.g. 3% >= 2.5%), SHOW IT.
+            if (dropPercent < settings.averagingThreshold) {
+                return false;
+            }
+        }
+
+        return true;
     });
 
     const formatLastUpdated = (dateStr: string | null) => {

@@ -1,7 +1,7 @@
 // API route for holdings CRUD operations
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllHoldings, addHolding, updateHolding, deleteHolding, getETFBySymbol } from '@/lib/db';
+import { getAllHoldings, addHolding, updateHolding, deleteHolding, getETFBySymbol, getDailyActivity, incrementDailyBuy, getSettings } from '@/lib/db';
 
 export async function GET() {
     try {
@@ -18,6 +18,18 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { etfSymbol, buyDate, buyPrice, quantity } = body;
 
+        // Check daily buy limit
+        const settings = getSettings();
+
+        // Use the buyDate from the request to check limits for that specific day
+        const activity = getDailyActivity(buyDate);
+        const buyCount = activity?.buy_count || 0;
+
+        if (settings.maxDailyBuys && buyCount >= settings.maxDailyBuys) {
+            // Recommendation only - allow it but maybe log it?
+            console.warn(`Daily buy limit of ${settings.maxDailyBuys} reached for ${buyDate}, but proceeding as it's a soft limit.`);
+        }
+
         // Get ETF ID from symbol
         const etf = getETFBySymbol(etfSymbol);
         if (!etf) {
@@ -25,6 +37,10 @@ export async function POST(request: NextRequest) {
         }
 
         const id = addHolding(etf.id, buyDate, buyPrice, quantity);
+
+        // Increment daily buy count for the specific buy date
+        incrementDailyBuy(buyDate);
+
         return NextResponse.json({ id, success: true });
     } catch (error) {
         console.error('Error adding holding:', error);

@@ -102,3 +102,31 @@ export interface SIPEntry {
   nextDate: string;
   isActive: boolean;
 }
+
+export interface MarketDataRow {
+  id: number;
+  etfId: number;
+  symbol: string;
+  yahooSymbol: string;
+  name: string;
+  category: string;
+  cmp: number | null;
+  high52w: number | null;
+  low52w: number | null;
+  prevClose: number | null;
+  change: number | null;
+  changePercent: number | null;
+  volume: number | null;
+  dma20: number | null;
+  dmaDistance: number | null;
+  updatedAt: string | null;
+  distanceFromLow: number | null;
+  distanceFromHigh: number | null;
+}
+
+export interface HoldingWithCalc extends Holding {
+  avgPrice: number;
+  targetPrice: number;
+  notionalPL: number;
+  notionalPLPercent: number;
+}
