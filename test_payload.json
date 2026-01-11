@@ -1,0 +1,11 @@
+{
+    "config": {
+        "symbol": "BTC-USD",
+        "startDate": "2020-01-01",
+        "endDate": "2024-12-31",
+        "targetPercent": 6,
+        "initialCapital": 100000,
+        "allocationPerTrade": 10000
+    },
+    "csvContent": null
+}

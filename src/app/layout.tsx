@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TabNav from "@/components/TabNav";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
+import MainTabSwitcher from "@/components/MainTabSwitcher";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,8 +45,13 @@ export default function RootLayout({
           </div>
         </header>
 
-        {/* Main content with padding for fixed header/footer */}
-        <main className="pt-20 pb-20 px-4 max-w-7xl mx-auto">
+        {/* Main Tab Switcher */}
+        <div className="fixed top-[68px] left-0 right-0 z-40">
+          <MainTabSwitcher />
+        </div>
+
+        {/* Main content with padding for fixed header/tabs/footer */}
+        <main className="pt-32 pb-20 px-4 max-w-7xl mx-auto">
           {children}
         </main>
 
